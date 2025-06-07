@@ -1,85 +1,121 @@
+// Cria um banco de dados local chamado 'carbon_footprint' usando PouchDB
 const db = new PouchDB('carbon_footprint');
 
+// Função que salva os dados do formulário no banco
 function saveData(formData) {
     return db.put({
-        _id: new Date().toISOString(),
-        formData: formData
+        _id: new Date().toISOString(), // Usa a data e hora atual como ID único do registro
+        formData: formData             // Salva os dados do formulário como um objeto
     });
 }
 
+// Função que busca e exibe todos os dados salvos em forma de tabela
 function displaySavedData() {
-    db.allDocs({ include_docs: true, descending: true })
+    db.allDocs({ include_docs: true, descending: true }) // Busca todos os documentos, incluindo o conteúdo, em ordem decrescente
         .then(function (result) {
+            // Seleciona a div onde os dados serão exibidos
             const savedDataDiv = document.getElementById('savedData');
+
+            // Define o título da seção de dados salvos
             savedDataDiv.innerHTML = '<h2 class="text-xl font-semibold text-gray-800">Dados Salvos</h2>';
+
+            // Cria a tabela para exibir os dados
             const table = document.createElement('table');
             table.classList.add('mt-4', 'w-full', 'border', 'border-gray-200', 'divide-y', 'divide-gray-200');
 
+            // Cria o cabeçalho da tabela
             const tableHeader = document.createElement('thead');
             const headerRow = document.createElement('tr');
-            const header1 = document.createElement('th');
-            header1.textContent = 'Data';
-            const header2 = document.createElement('th');
-            header2.textContent = 'Combustível (litros)';
-            const header3 = document.createElement('th');
-            header3.textContent = 'Tipo de Combustível';
-            const header4 = document.createElement('th');
-            header4.textContent = 'Distância Percorrida (km)';
 
+            const header1 = document.createElement('th');
+            header1.textContent = 'Data'; // Cabeçalho para a data de salvamento
+
+            const header2 = document.createElement('th');
+            header2.textContent = 'Combustível (litros)'; // Quantidade de combustível
+
+            const header3 = document.createElement('th');
+            header3.textContent = 'Tipo de Combustível'; // Tipo (ex: gasolina, etanol)
+
+            const header4 = document.createElement('th');
+            header4.textContent = 'Distância Percorrida (km)'; // Distância percorrida
+
+            // Adiciona os cabeçalhos à linha do cabeçalho
             headerRow.appendChild(header1);
             headerRow.appendChild(header2);
             headerRow.appendChild(header3);
             headerRow.appendChild(header4);
-            tableHeader.appendChild(headerRow);
-            table.appendChild(tableHeader);
+            tableHeader.appendChild(headerRow); // Adiciona a linha ao thead
+            table.appendChild(tableHeader);     // Adiciona o thead à tabela
 
+            // Cria o corpo da tabela
             const tableBody = document.createElement('tbody');
+
+            // Para cada documento salvo, cria uma linha na tabela
             result.rows.forEach(function (row) {
                 const doc = row.doc;
                 const dataRow = document.createElement('tr');
-                const dateCell = document.createElement('td');
-                dateCell.textContent = new Date(doc._id).toLocaleString();
-                const formData = doc.formData;
-                const fuelCell = document.createElement('td');
-                fuelCell.textContent = formData.fuel;
-                const fuelTypeCell = document.createElement('td');
-                fuelTypeCell.textContent = formData.fuelType;
-                const distanceCell = document.createElement('td');
-                distanceCell.textContent = formData.distance;
 
+                const dateCell = document.createElement('td');
+                dateCell.textContent = new Date(doc._id).toLocaleString(); // Converte o _id (data) em formato legível
+
+                const formData = doc.formData;
+
+                const fuelCell = document.createElement('td');
+                fuelCell.textContent = formData.fuel; // Quantidade de combustível
+
+                const fuelTypeCell = document.createElement('td');
+                fuelTypeCell.textContent = formData.fuelType; // Tipo de combustível
+
+                const distanceCell = document.createElement('td');
+                distanceCell.textContent = formData.distance; // Distância percorrida
+
+                // Adiciona as células à linha
                 dataRow.appendChild(dateCell);
                 dataRow.appendChild(fuelCell);
                 dataRow.appendChild(fuelTypeCell);
                 dataRow.appendChild(distanceCell);
+
+                // Adiciona a linha ao corpo da tabela
                 tableBody.appendChild(dataRow);
             });
+
+            // Adiciona o corpo à tabela e insere a tabela na div
             table.appendChild(tableBody);
             savedDataDiv.appendChild(table);
         }).catch(function (err) {
-            console.log(err);
+            console.log(err); // Exibe erros no console, se houver
         });
 }
 
+// Evento que intercepta o envio do formulário e salva os dados
 document.getElementById('carbonForm').addEventListener('submit', function (event) {
-    event.preventDefault();
+    event.preventDefault(); // Impede o recarregamento da página
+
+    // Coleta os valores do formulário e converte para os tipos apropriados
     const formData = {
-        fuel: parseFloat(document.getElementById('fuel').value),
-        fuelType: document.getElementById('fuelType').value,
-        distance: parseFloat(document.getElementById('distance').value)
+        fuel: parseFloat(document.getElementById('fuel').value),        // Litros de combustível (número)
+        fuelType: document.getElementById('fuelType').value,            // Tipo de combustível (string)
+        distance: parseFloat(document.getElementById('distance').value) // Distância percorrida (número)
     };
+
+    // Salva os dados e atualiza a tabela
     saveData(formData).then(function () {
-        displaySavedData();
+        displaySavedData(); // Atualiza os dados exibidos
     }).catch(function (err) {
-        console.log(err);
+        console.log(err); // Exibe erros no console
     });
 });
 
+// Evento que salva os dados ao clicar no botão "Salvar Dados"
 document.getElementById('saveDataBtn').addEventListener('click', function () {
+    // Coleta os dados do formulário
     const formData = {
         fuel: parseFloat(document.getElementById('fuel').value),
         fuelType: document.getElementById('fuelType').value,
         distance: parseFloat(document.getElementById('distance').value)
     };
+
+    // Salva os dados e exibe alerta de sucesso
     saveData(formData).then(function () {
         alert('Dados salvos com sucesso!');
     }).catch(function (err) {
@@ -87,7 +123,8 @@ document.getElementById('saveDataBtn').addEventListener('click', function () {
     });
 });
 
+// Evento que carrega e exibe os dados salvos ao clicar no botão "Carregar Tabela"
 document.getElementById('loadTableBtn').addEventListener('click', function () {
-    displaySavedData();
+    displaySavedData(); // Exibe os dados salvos no banco
 });
-
+// Carrega os dados salvos ao abrir a página
