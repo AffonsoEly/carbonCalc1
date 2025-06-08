@@ -3,7 +3,7 @@ const db = new PouchDB('carbon_footprint');
 
 // Função que salva os dados do formulário no banco
 function saveData(formData) {
-    return db.put({
+    return db.put({// Cria um novo documento no banco de dados
         _id: new Date().toISOString(), // Usa a data e hora atual como ID único do registro
         formData: formData             // Salva os dados do formulário como um objeto
     });
@@ -21,11 +21,11 @@ function displaySavedData() {
 
             // Cria a tabela para exibir os dados
             const table = document.createElement('table');
-            table.classList.add('mt-4', 'w-full', 'border', 'border-gray-200', 'divide-y', 'divide-gray-200');
+            table.classList.add('mt-4', 'w-full', 'border', 'border-gray-200', 'divide-y', 'divide-gray-200');// Adiciona classes para estilo
 
             // Cria o cabeçalho da tabela
             const tableHeader = document.createElement('thead');
-            const headerRow = document.createElement('tr');
+            const headerRow = document.createElement('tr');// Cria uma linha para o cabeçalho
 
             const header1 = document.createElement('th');
             header1.textContent = 'Data'; // Cabeçalho para a data de salvamento
@@ -40,24 +40,26 @@ function displaySavedData() {
             header4.textContent = 'Distância Percorrida (km)'; // Distância percorrida
 
             // Adiciona os cabeçalhos à linha do cabeçalho
-            headerRow.appendChild(header1);
+            headerRow.appendChild(header1);// Adiciona a célula de data
             headerRow.appendChild(header2);
-            headerRow.appendChild(header3);
+            headerRow.appendChild(header3);// Adiciona a célula de tipo de combustível
             headerRow.appendChild(header4);
             tableHeader.appendChild(headerRow); // Adiciona a linha ao thead
             table.appendChild(tableHeader);     // Adiciona o thead à tabela
 
             // Cria o corpo da tabela
-            const tableBody = document.createElement('tbody');
+            const tableBody = document.createElement('tbody');// Cria o tbody para os dados
 
             // Para cada documento salvo, cria uma linha na tabela
             result.rows.forEach(function (row) {
-                const doc = row.doc;
+                const doc = row.doc;// Obtém o documento atual
+                // Cria uma nova linha para os dados
                 const dataRow = document.createElement('tr');
 
-                const dateCell = document.createElement('td');
-                dateCell.textContent = new Date(doc._id).toLocaleString(); // Converte o _id (data) em formato legível
-
+                const dateCell = document.createElement('td');// Cria a célula para a data
+                // Converte o _id (que é a data em formato ISO) para um formato legível
+                dateCell.textContent = new Date(doc._id).toLocaleString(); // Formata a data para exibição
+                // Cria células para os dados do formulário
                 const formData = doc.formData;
 
                 const fuelCell = document.createElement('td');
@@ -70,18 +72,19 @@ function displaySavedData() {
                 distanceCell.textContent = formData.distance; // Distância percorrida
 
                 // Adiciona as células à linha
-                dataRow.appendChild(dateCell);
-                dataRow.appendChild(fuelCell);
-                dataRow.appendChild(fuelTypeCell);
-                dataRow.appendChild(distanceCell);
+                dataRow.appendChild(dateCell);// Adiciona a célula de data
+                dataRow.appendChild(fuelCell);// Adiciona a célula de combustível
+                dataRow.appendChild(fuelTypeCell);// Adiciona a célula de tipo de combustível
+                dataRow.appendChild(distanceCell);// Adiciona a célula de distância
 
                 // Adiciona a linha ao corpo da tabela
                 tableBody.appendChild(dataRow);
             });
 
             // Adiciona o corpo à tabela e insere a tabela na div
-            table.appendChild(tableBody);
-            savedDataDiv.appendChild(table);
+            table.appendChild(tableBody);// Adiciona o tbody à tabela
+            savedDataDiv.innerHTML = ''; // Limpa o conteúdo anterior da div
+            savedDataDiv.appendChild(table);// Adiciona a tabela à div
         }).catch(function (err) {
             console.log(err); // Exibe erros no console, se houver
         });
@@ -106,16 +109,16 @@ document.getElementById('carbonForm').addEventListener('submit', function (event
     });
 });
 
-// Evento que salva os dados ao clicar no botão "Salvar Dados"
+// Evento que salva os dados ao clicar no botão "Salvar Dados", se não houver erros.
 document.getElementById('saveDataBtn').addEventListener('click', function () {
-    // Coleta os dados do formulário
+    // Pega os dados do formulário
     const formData = {
         fuel: parseFloat(document.getElementById('fuel').value),
         fuelType: document.getElementById('fuelType').value,
         distance: parseFloat(document.getElementById('distance').value)
     };
 
-    // Salva os dados e exibe alerta de sucesso
+    // Salva os dados e exibe alerta de sucesso, se não houver erros.
     saveData(formData).then(function () {
         alert('Dados salvos com sucesso!');
     }).catch(function (err) {
@@ -123,8 +126,8 @@ document.getElementById('saveDataBtn').addEventListener('click', function () {
     });
 });
 
-// Evento que carrega e exibe os dados salvos ao clicar no botão "Carregar Tabela"
+// Evento que carrega e exibe os dados salvos ao clicar no botão "Carregar Tabela", se houver dados salvos.
 document.getElementById('loadTableBtn').addEventListener('click', function () {
-    displaySavedData(); // Exibe os dados salvos no banco
+    displaySavedData(); // Exibe os dados salvos no banco de dadosPouchDB
 });
 // Carrega os dados salvos ao abrir a página
